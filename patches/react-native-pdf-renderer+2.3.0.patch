@@ -1,0 +1,29 @@
+diff --git a/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/PdfRendererViewManagerImpl.java b/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/PdfRendererViewManagerImpl.java
+--- a/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/PdfRendererViewManagerImpl.java
++++ b/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/PdfRendererViewManagerImpl.java
+@@ -77,7 +77,7 @@ public class PdfRendererViewManagerImpl {
+                 view.updateSource(file);
+ 
+                 view.forceRequestLayout();
+-            } catch (IOException e) {
++            } catch (IOException | SecurityException e) {
+                 if (BuildConfig.DEBUG) {
+                     // noinspection CallToPrintStackTrace
+                     e.printStackTrace();
+diff --git a/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/modules/PdfRendererRecyclerView.java b/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/modules/PdfRendererRecyclerView.java
+--- a/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/modules/PdfRendererRecyclerView.java
++++ b/node_modules/react-native-pdf-renderer/android/src/main/java/com/github/douglasjunior/reactNativePdfRenderer/modules/PdfRendererRecyclerView.java
+@@ -345,7 +345,12 @@ public class PdfRendererRecyclerView extends RecyclerView {
+ 
+         public void updateSource(File file) throws IOException {
+             mFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+-            mPdfRenderer = new PdfRenderer(mFileDescriptor);
++            try {
++                mPdfRenderer = new PdfRenderer(mFileDescriptor);
++            } catch (IOException | SecurityException e) {
++                close();
++                throw e;
++            }
+         }
+ 
+         public void close() {
